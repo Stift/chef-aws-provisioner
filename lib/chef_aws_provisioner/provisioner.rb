@@ -1,0 +1,10 @@
+require 'celluloid/current'
+require 'chef/application/client'
+require 'shellwords'
+
+require_relative 'provisioner/provisioner'
+require_relative 'provisioner/unprovisioner'
+require_relative 'provisioner/provision_worker'
+require_relative 'provisioner/unprovision_worker'
+require_relative 'provisioner/provision'
+require_relative 'provisioner/unprovision'

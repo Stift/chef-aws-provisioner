@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'chef_aws_provisioner'
+
+application = ChefAWSProvisioner::Provisioner.new
+application.run
