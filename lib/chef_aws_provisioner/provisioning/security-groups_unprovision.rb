@@ -1,7 +1,5 @@
 require 'chef/provisioning/aws_driver'
 
-utils = ChefAWSProvisioner::AWSUtils.new Chef::Config.chef_provisioning['region']
-
 with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
 
 tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment

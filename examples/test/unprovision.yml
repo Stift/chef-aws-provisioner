@@ -1,0 +1,12 @@
+---
+4:
+  - subnets
+3:
+  - security-groups
+  - route-tables
+  - network-acls
+2:
+  - vpc
+1:
+  - iam-roles
+  - internet-gateway

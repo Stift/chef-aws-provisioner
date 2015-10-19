@@ -1,0 +1,12 @@
+---
+- name: base
+  inbound-rules:
+    - action:      allow
+      cidr-block:  0.0.0.0/0
+      protocol:    any
+      rule-number: 100
+  outbound-rules:
+    - action:      allow
+      cidr-block:  0.0.0.0/0
+      protocol:    any
+      rule-number: 100

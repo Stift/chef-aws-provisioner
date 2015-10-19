@@ -8,7 +8,7 @@ tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
 utils = ChefAWSProvisioner::AWSUtils.new(Chef::Config.chef_provisioning['region'], Chef::Config.environment)
 
 instance = { 'name' => 'public' }
-tags = tagger.route_tags(instance)
+tags = tagger.route_table_tags(instance)
 
 aws_route_table utils.default_route.id do
   vpc Chef::Config.environment
@@ -23,6 +23,7 @@ tags['Notice'] = "This is the #{Chef::Config.environment} VPC's default network 
 
 aws_network_acl utils.default_network_acl.id do
   aws_tags tags
+  inbound_rules []
   outbound_rules []
   vpc Chef::Config.environment
 end

@@ -8,6 +8,10 @@ module ChefAWSProvisioner
            description: 'Set the Chef Environment on the node'
 
    def initialize
+     @general_tasks = ['iam-roles']
+     @no_config_tasks = ['defaults', 'internet-gateway', 'keys']
+     @chef_repo_recipe_path = "#{Chef::Config.chef_repo_path}/provisioning"
+     @local_recipe_path = "#{__FILE__}/../../provisioning"
      super()
      @general_tasks = ['iam-roles']
    end
@@ -52,7 +56,7 @@ module ChefAWSProvisioner
             YAML.load(File.open("#{yml_config(task=task)}/#{task}.yml"))
           rescue => e
             Chef::Application.fatal!("Could not parse YAML configuration: #{e.message}")
-          end
+          end unless @no_config_tasks.include? task
           File.expand_path("#{__FILE__}/../../provisioning/#{task}_unprovision.rb")
         end
       end

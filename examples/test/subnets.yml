@@ -1,0 +1,27 @@
+---
+- acl:               base
+  address:           10.0.0.0
+  availability-zone: a
+  name:              default-001
+  prefix:            25
+  route-table:       private
+  type:              private
+- acl:               base
+  address:           10.0.0.128
+  availability-zone: b
+  name:              default-001
+  prefix:            25
+  route-table:       private
+  type:              private
+- acl:               base
+  address:           10.0.1.0
+  availability-zone: a
+  name:              default-001
+  prefix:            25
+  type:              public
+- acl:               base
+  address:           10.0.1.128
+  availability-zone: b
+  name:              default-001
+  prefix:            25
+  type:              public

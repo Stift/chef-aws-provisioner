@@ -1,0 +1,14 @@
+---
+1:
+  - keys
+  - iam-roles
+  - internet-gateway
+2:
+  - vpc
+3:
+  - defaults
+  - security-groups
+  - route-tables
+  - network-acls
+4:
+  - subnets

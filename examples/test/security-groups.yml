@@ -1,0 +1,68 @@
+---
+- name: base
+  inbound-rules:
+    - port:         -1
+      protocol:     icmp
+      sources:
+        - "0.0.0.0/0"
+    - port:         22
+      protocol:     tcp
+      sources:
+        - "0.0.0.0/0"
+    - port:         67
+      protocol:     udp
+      sources:
+        - "0.0.0.0/0"
+    - port:         68
+      protocol:     udp
+      sources:
+        - "0.0.0.0/0"
+    - port:         123
+      protocol:     udp
+      sources:
+        - "0.0.0.0/0"
+  outbound-rules:
+    - port:         21
+      protocol:     tcp
+      destinations:
+        - "0.0.0.0/0"
+    - port:         22
+      protocol:     tcp
+      destinations:
+        - "0.0.0.0/0"
+    - port:         80
+      protocol:     tcp
+      destinations:
+        - "0.0.0.0/0"
+    - port:         443
+      protocol:     tcp
+      destinations:
+        - "0.0.0.0/0"
+    - port:         53
+      protocol:     udp
+      destinations:
+        - "0.0.0.0/0"
+    - port:         123
+      protocol:     udp
+      destinations:
+        - "0.0.0.0/0"
+    - port:         67
+      protocol:     udp
+      destinations:
+        - "0.0.0.0/0"
+    - port:         68
+      protocol:     udp
+      destinations:
+        - "0.0.0.0/0"
+    - port:         -1
+      protocol:     icmp
+      destinations:
+        - "0.0.0.0/0"
+- name: elasticsearch
+  inbound-rules:
+    - from-port:    9200
+      to-port:      9300
+      protocol:     tcp
+      sources:
+        - "0.0.0.0/0"
+  outbound-rules: []

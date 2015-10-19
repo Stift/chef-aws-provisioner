@@ -6,7 +6,7 @@ with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
 tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
 
 Chef::Config.chef_provisioning['route-tables'].each do |rt|
-  tags = tagger.route_tags(rt)
+  tags = tagger.route_table_tags(rt)
 
   aws_route_table tags['Name'] do
     action :destroy
