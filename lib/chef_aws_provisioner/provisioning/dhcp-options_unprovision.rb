@@ -7,11 +7,8 @@ with_driver "aws::#{config['region']}"
 
 tagger = ChefAWSProvisioner::Tagger.new environment
 
-config['subnets'].each do |subnet|
-  tags = tagger.subnet_tags(subnet)
+tags = tagger.dhcp_options_tags
 
-  aws_subnet databag_name(tags['Name']) do
-    action :destroy
-    vpc databag_name(tagger.vpc_tags['Name'])
-  end
+aws_dhcp_options databag_name(tags['Name']) do
+  action :destroy
 end

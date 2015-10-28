@@ -12,16 +12,21 @@ utils = ChefAWSProvisioner::AWSUtils.new(config['region'], environment)
 tagger = ChefAWSProvisioner::Tagger.new environment
 
 config['machine-images'].each do |image|
+  # tags = tagger.machine_image_tags(image)
 
+  Chef::Log.info 1
   if image['image-id'] == 'latest'
+    Chef::Log.info '1a'
     ami = utils.latest_ami image['os']
+    Chef::Log.info 2
     ami_id = ami.id
+    Chef::Log.info 3
   else
     ami_id = image['image-id']
+    Chef::Log.info 4
   end
 
-  transport_address_location = :public_ip
-
+  Chef::Log.info 5
   case image['transport-address-location']
   when 'public'
     transport_address_location = :public_ip
@@ -33,21 +38,18 @@ config['machine-images'].each do |image|
     fail "Unsupported transport-address-location #{image['transport-address-location']} given. Supported are: public, private, dns"
   end
 
+  Chef::Log.info 3
   security_groups = []
-  image['security-groups'].each do |sg|
-    sg_instance = {'name' => sg}
-    tags = tagger.security_group_tags(sg_instance)
-    security_groups.push(databag_name(tags['Name']))
-  end
+  image['security-groups'].each { |sg| security_groups.push("#{environment}-#{sg}") }
+
+  Chef::Log.info 4
   bootstrap_options = {}
   bootstrap_options['iam_instance_profile'] = image['iam-instance-profile']
   bootstrap_options['image_id'] = ami_id
   bootstrap_options['instance_type'] = image['instance-type']
-  bootstrap_options['security_groups'] = security_groups
-  subnet_instance = {'name' => image['subnet'], 'type' => image['subnet-type'], 'availability-zone' => image['availability-zone']}
-  subnet_tags = tagger.subnet_tags(subnet_instance)
-  bootstrap_options['subnet'] = subnet_tags['Name']
-  bootstrap_options['key_name'] = image['key-name'] if image['key-name']
+  bootstrap_options['security_group_ids'] = security_groups
+  bootstrap_options['subnet'] = "#{environment}-#{image['subnet']}"
+  bootstrap_options['key_name'] = image['key_name'] if image['key-name']
 
   convergence_options = {}
   convergence_options['allow_overwrite_keys'] = image['allow-overwrite-keys']
@@ -61,64 +63,18 @@ config['machine-images'].each do |image|
   machine_options['create_timeout'] = image['create-timeout']
   machine_options['start_timeout'] = image['start-timeout']
 
+  pp machine_options
 
-  vpc = databag_name(tagger.vpc_tags['Name'])
-  vpc = image['vpc'] if image['vpc']
-  # pp machine_options
-  tags = tagger.machine_image_tags(image)
-
-  # machine_image databag_name(tags['Name']) do
+  # aws_machine_image databag_name(tags['Name']) do
   #   attributes image['attributes'] if image['attributes']
+  #   aws_tags tags
   #   chef_environment image['chef_environment'] if image['chef_environment']
   #   complete image['complete'] if image['complete']
   #   ignore_failure image['ignore_failure'] if [true, false].include? image['ignore_failure']
   #   image_options image['image_options'] if image['image_options']
   #   machine_options machine_options
   #   run_list image['run_list']
-  #   machine_options bootstrap_options: {
-  #         availability_zone: "#{config['region']}#{image['availability-zone']}",
-  #     iam_instance_profile: image['iam-instance-profile'],
-  #     image_id: ami_id,
-  #     instance_type: image['instance-type'],
-  #     security_group_ids: security_groups,
-  #     subnet: subnet_tags['Name'],
-  #     key_name: image['key-name']
-  #   },
-  #                   convergence_options: {
-  #                     allow_overwrite_keys: image['allow-overwrite-keys'],
-  #                     ssl_verify_mode: :verify_none
-  #                   },
-  #                   use_private_ip_for_ssh: image['use-private-ip-for-ssh'],
-  #                   transport_address_location: transport_address_location,
-  #                   create_timeout: image['create-timeout'],
-  #                   start_timeout: image['start-timeout'],
-  #                   aws_tags: tags
-  #   # vpc vpc
   # end
-
-  machine_image databag_name(tags['Name']) do
-    role "elasticsearch-#{es_type}"
-    chef_environment environment
-    machine_options bootstrap_options: {
-      availability_zone: "#{config['region']}#{image['availability-zone']}",
-      iam_instance_profile: image['iam-instance-profile'],
-      image_id: ami_id,
-      instance_type: image['instance-type'],
-      security_group_ids: security_groups,
-      subnet: subnet_tags['Name'],
-      key_name: image['key-name']
-    },
-                    convergence_options: {
-                      allow_overwrite_keys: image['allow-overwrite-keys'],
-                      ssl_verify_mode: :verify_none
-                    },
-                    use_private_ip_for_ssh: image['use-private-ip-for-ssh'],
-                    transport_address_location: transport_address_location,
-                    create_timeout: image['create-timeout'],
-                    start_timeout: image['start-timeout'],
-                    aws_tags: tags
-  end
-
 end
 
 # require 'chef/provisioning/aws_driver'

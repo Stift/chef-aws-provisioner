@@ -1,10 +1,15 @@
-require 'chef/provisioning/aws_driver'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
-aws_key_pair Chef::Config.environment do
-  private_key_options(format:                  :pem,
-                      type:                    :rsa,
-                      regenerate_if_different: false)
-  allow_overwrite false
+with_driver "aws::#{config['region']}"
+
+config['keys'].each do |key|
+  aws_key_pair key['name'].slugify do
+    private_key_options(format:                  key['format'].to_sym,
+                        type:                    key['type'].to_sym,
+                        regenerate_if_different: key['regenerate-if-different'])
+    allow_overwrite key['allow-overwrite']
+  end
 end

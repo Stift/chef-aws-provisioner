@@ -1,6 +1,5 @@
 module ChefAWSProvisioner
   module Utils
-
     # Returns a route table in a given VPC.
     #
     # @param name [String] The name of the route table to search for.

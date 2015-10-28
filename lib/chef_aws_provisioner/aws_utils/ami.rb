@@ -7,8 +7,8 @@ module ChefAWSProvisioner
     #
     # @return [Object] The last item of a list of AMI instances sorted by name
     def latest_ami(os)
-      raise ArgumentError, "OS #{os} is not supported! Only windows and ubuntu are..." unless ['ubuntu', 'windows'].include? os
-      self.method("latest_#{os}_ami".to_sym).call
+      raise ArgumentError, "OS #{os} is not supported! Only windows and ubuntu are..." unless %w(ubuntu windows).include? os
+      method("latest_#{os}_ami".to_sym).call
     end
 
     # Fetches an Ubuntu AMI object instance.

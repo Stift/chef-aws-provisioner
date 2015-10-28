@@ -2,5 +2,5 @@
 
 require 'chef_aws_provisioner'
 
-application = ChefAWSProvisioner::Unprovision.new ARGV[0]
+application = ChefAWSProvisioner::Unprovision.new
 application.run

@@ -1,12 +1,14 @@
-require 'chef/provisioning/aws_driver'
-require 'chef_aws_provisioner/tagger'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
-tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
+with_driver "aws::#{config['region']}"
+
+tagger = ChefAWSProvisioner::Tagger.new environment
 
 tags = tagger.internet_gateway_tags
 
-aws_internet_gateway tags['Name'] do
-    aws_tags tags
+aws_internet_gateway databag_name(tags['Name']) do
+  aws_tags tags
 end

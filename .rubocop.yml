@@ -24,9 +24,5 @@ MethodLength:
   Enabled: false
 SignalException:
   Enabled: false
-TrailingComma:
-  Enabled: false
-WordArray:
-  Enabled: false
 Style/FileName:
   Enabled: false

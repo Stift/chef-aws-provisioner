@@ -1,5 +1,7 @@
-require 'chef/provisioning/aws_driver'
-require 'chef_aws_provisioner/tagger'
+require_relative 'base'
+
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
 def format_rule(rule)
   new_rule = {}
@@ -15,11 +17,11 @@ def format_rule(rule)
   new_rule
 end
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+with_driver "aws::#{config['region']}"
 
-tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
+tagger = ChefAWSProvisioner::Tagger.new environment
 
-Chef::Config.chef_provisioning['network-acls'].each do |acl|
+config['network-acls'].each do |acl|
   inbound_rules = []
 
   acl['outbound-rules'].each do |rule|
@@ -34,10 +36,12 @@ Chef::Config.chef_provisioning['network-acls'].each do |acl|
 
   tags = tagger.network_acl_tags(acl)
 
-  aws_network_acl tags['Name'] do
+  Chef::Log.info tags['Name']
+  Chef::Log.info databag_name(tags['Name'])
+  aws_network_acl databag_name(tags['Name']) do
     aws_tags tags
     inbound_rules inbound_rules
     outbound_rules outbound_rules
-    vpc Chef::Config.environment
+    vpc databag_name(tagger.vpc_tags['Name'])
   end
 end

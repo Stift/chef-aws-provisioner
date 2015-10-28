@@ -1,11 +1,12 @@
-require 'chef/provisioning/aws_driver'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
-aws_vpc Chef::Config.environment do
+with_driver "aws::#{config['region']}"
+
+tagger = ChefAWSProvisioner::Tagger.new environment
+
+aws_vpc databag_name(tagger.vpc_tags['Name']) do
   action :purge
-end
-
-aws_dhcp_options Chef::Config.environment do
-  action :destroy
 end

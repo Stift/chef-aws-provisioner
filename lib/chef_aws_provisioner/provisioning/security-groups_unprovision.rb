@@ -1,14 +1,17 @@
-require 'chef/provisioning/aws_driver'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
-tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
+with_driver "aws::#{config['region']}"
 
-Chef::Config.chef_provisioning['security-groups'].each do |sg|
+tagger = ChefAWSProvisioner::Tagger.new environment
+
+config['security-groups'].each do |sg|
   tags = tagger.security_group_tags(sg)
 
-  aws_security_group tags['Name'] do
+  aws_security_group databag_name(tags['Name']) do
     action :destroy
-    vpc Chef::Config.environment
+    vpc databag_name(tagger.vpc_tags['Name'])
   end
 end

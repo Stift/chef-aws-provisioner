@@ -1,15 +1,15 @@
-require 'chef/provisioning/aws_driver'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
 
-Chef::Config.chef_provisioning['iam-roles'].each do |role|
+with_driver "aws::#{config['region']}"
 
-  aws_iam_instance_profile role['name'] do
+config['iam-roles'].each do |role|
+  aws_iam_instance_profile role['name'].slugify do
     action :destroy
   end
 
-  aws_iam_role role['name'] do
+  aws_iam_role role['name'].slugify do
     action :destroy
   end
-
 end

@@ -1,15 +1,17 @@
-require 'chef/provisioning/aws_driver'
-require 'chef_aws_provisioner/tagger'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
-tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
+with_driver "aws::#{config['region']}"
 
-Chef::Config.chef_provisioning['route-tables'].each do |rt|
+tagger = ChefAWSProvisioner::Tagger.new environment
+
+config['route-tables'].each do |rt|
   tags = tagger.route_table_tags(rt)
 
-  aws_route_table tags['Name'] do
+  aws_route_table databag_name(tags['Name']) do
     action :destroy
-    vpc Chef::Config.environment
+    vpc databag_name(tagger.vpc_tags['Name'])
   end
 end

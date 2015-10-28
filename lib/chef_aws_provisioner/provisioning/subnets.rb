@@ -1,25 +1,39 @@
-require 'chef/provisioning/aws_driver'
-require 'chef_aws_provisioner/aws_utils'
-require 'chef_aws_provisioner/tagger'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
-tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
+with_driver "aws::#{config['region']}"
 
-Chef::Config.chef_provisioning['subnets'].each do |subnet|
+utils = ChefAWSProvisioner::AWSUtils.new(config['region'], environment)
+
+tagger = ChefAWSProvisioner::Tagger.new environment
+
+config['subnets'].each do |subnet|
   tags = tagger.subnet_tags(subnet)
   if subnet['route-table']
-    route_table = "#{Chef::Config.environment}-#{subnet['route-table']}"
+    instance = { 'type' => subnet['type'], 'name' => subnet['route-table'] }
+    route_table = databag_name(tagger.route_table_tags(instance)['Name'])
   else
     route_table = utils.default_route.id
   end
-  aws_subnet tags['Name'] do
-    availability_zone "#{Chef::Config.chef_provisioning['region']}#{subnet['availability-zone']}"
+  if subnet['acl']
+    instance = { 'type' => subnet['type'], 'name' => subnet['acl'] }
+    network_acl = databag_name(tagger.network_acl_tags(instance)['Name'])
+  else
+    network_acl = utils.default_network_acl.id
+  end
+
+  vpc = databag_name(tagger.vpc_tags['Name'])
+  vpc = subnet['vpc'] if subnet['vpc']
+
+  aws_subnet databag_name(tags['Name']) do
+    availability_zone "#{config['region']}#{subnet['availability-zone']}"
     aws_tags tags
     cidr_block "#{subnet['address']}/#{subnet['prefix']}"
     map_public_ip_on_launch subnet['type'] == 'public' ? true : false
-    network_acl "#{Chef::Config.environment}-#{subnet['acl']}"
+    network_acl network_acl
     route_table route_table
-    vpc Chef::Config.environment
+    vpc vpc
   end
 end

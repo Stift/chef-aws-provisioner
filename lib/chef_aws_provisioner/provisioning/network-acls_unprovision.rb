@@ -1,14 +1,17 @@
-require 'chef/provisioning/aws_driver'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
-tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
+with_driver "aws::#{config['region']}"
 
-Chef::Config.chef_provisioning['network-acls'].each do |acl|
+tagger = ChefAWSProvisioner::Tagger.new environment
+
+config['network-acls'].each do |acl|
   tags = tagger.network_acl_tags(acl)
 
-  aws_network_acl tags['Name'] do
+  aws_network_acl databag_name(tags['Name']) do
     action :destroy
-    vpc Chef::Config.environment
+    vpc databag_name(tagger.vpc_tags['Name'])
   end
 end

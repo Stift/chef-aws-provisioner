@@ -2,13 +2,13 @@ require 'chef/provisioning/aws_driver'
 require 'chef_aws_provisioner/tagger'
 require 'chef_aws_provisioner/aws_utils'
 
-instance = ChefAWSProvisioner::AWSUtils.new Chef::Config.chef_provisioning['region']
+instance = ChefAWSProvisioner::AWSUtils.new config['region']
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+with_driver "aws::#{config['region']}"
 
-tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
+tagger = ChefAWSProvisioner::Tagger.new environment
 
-Chef::Config.chef_provisioning['elasticsearch/amis'].each do |ami|
+config['elasticsearch/amis'].each do |ami|
   tags = tagger.ami_tags(ami)
 
   machine_image tags['Name'] do
@@ -16,22 +16,22 @@ Chef::Config.chef_provisioning['elasticsearch/amis'].each do |ami|
   end
 
   image_id = ami['image-id']
-  image_id = instance.latest_ami(ami['os']).image_id if ami['image-id'] == "latest"
+  image_id = instance.latest_ami(ami['os']).image_id if ami['image-id'] == 'latest'
 
   security_groups = []
-  ami['security-group-ids'].map { |e| security_groups.push("#{Chef::Config.environment}-#{e}")  }
+  ami['security-group-ids'].map { |e| security_groups.push("#{environment}-#{e}")  }
 
   machine_image tags['Name'] do
     run_list ami['run_list']
-    chef_environment Chef::Config.environment
+    chef_environment environment
     machine_options bootstrap_options: {
-      availability_zone: "#{Chef::Config.chef_provisioning['region']}#{ami['availability-zone']}",
+      availability_zone: "#{config['region']}#{ami['availability-zone']}",
       iam_instance_profile: ami['iam-instance-profile'],
       image_id: instance.latest_ubuntu_ami.image_id,
       instance_type: ami['instance-type'],
       security_group_ids: security_groups,
-      subnet: "#{Chef::Config.environment}-#{ami['subnet']}",
-      key_name: "#{Chef::Config.environment}-key-pair"
+      subnet: "#{environment}-#{ami['subnet']}",
+      key_name: "#{environment}-key-pair"
     },
                     convergence_options: {
                       allow_overwrite_keys: true,

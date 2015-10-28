@@ -1,15 +1,16 @@
-require 'chef/provisioning/aws_driver'
-require 'chef_aws_provisioner/aws_utils'
-require 'chef_aws_provisioner/tagger'
+require_relative 'base'
 
-with_driver "aws::#{Chef::Config.chef_provisioning['region']}"
+config = Chef::Config.chef_provisioning
+environment = Chef::Config.environment
 
-tagger = ChefAWSProvisioner::Tagger.new Chef::Config.environment
+with_driver "aws::#{config['region']}"
 
-Chef::Config.chef_provisioning['launch-configurations'].each do |lc|
+tagger = ChefAWSProvisioner::Tagger.new environment
+
+config['launch-configurations'].each do |lc|
   tags = tagger.launch_configuration_tags(lc)
 
-    aws_launch_configuration tags['Name'] do
-      action :destroy
-    end
+  aws_launch_configuration databag_name(tags['Name']) do
+    action :destroy
+  end
 end

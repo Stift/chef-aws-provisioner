@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require 'chef_aws_provisioner'
+
+application = ChefAWSProvisioner::Provisioner.new
+application.local_reconfigure('DevTest', 'vpc')
+application.run

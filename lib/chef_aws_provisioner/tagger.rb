@@ -21,8 +21,9 @@ module ChefAWSProvisioner
 
     def basic_tags(instance, type)
       { 'Creator' => creator,
-        'Description' => "#{instance['name'].capitalize} #{type} for the #{@environment} VPC",
-        'Name' =>  "#{@environment}-#{instance['name']}" }
+        'Description' => "#{instance['name']} #{type} for the #{vpc_tags['Name']} VPC",
+        'Name' =>  "#{vpc_tags['Name']} - #{instance['name']} #{type}",
+        'VPC Name' => vpc_tags['Name'] }
     end
   end
 end
